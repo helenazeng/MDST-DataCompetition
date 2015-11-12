@@ -42,17 +42,15 @@ print("Test set size:", rats_te.shape)
 inds = np.random.choice(range(rats_tr.shape[0]),size=10,replace=False)
 print(rats_tr.loc[inds, ['comments', 'quality']])
 
+
 # Construct bigram representation
-count_vect = CountVectorizer(min_df=120,stop_words=ENGLISH_STOP_WORDS,ngram_range=(1,2))
+# count_vect = CountVectorizer(min_df=120,stop_words=ENGLISH_STOP_WORDS,ngram_range=(1,2))
+count_vect = CountVectorizer(min_df=120,ngram_range=(1,2))
 
 
 # "Fit" the transformation on the training set and apply to test
 Xtrain = count_vect.fit_transform(rats_tr.comments.fillna(''))
 Xtest = count_vect.transform(rats_te.comments.fillna(''))
-
-
-
-
 
 
 # Now let's train a model
@@ -79,9 +77,6 @@ print(df[-30:])
 # Save results in kaggle format
 submit = pd.DataFrame(data={'id': rats_te.id, 'quality': Yhat})
 submit.to_csv('ridge_submit.csv', index = False)
-
-
-
 
 
 # How do we make a prediction?
