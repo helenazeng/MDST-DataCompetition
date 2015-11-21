@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#PBS -M xngli@umich.edu
+#PBS -m abe
+
+#PBS -l nodes=4:ppn=8,mem=8000mb,walltime=1:00:00
+#PBS -j oe
+#PBS -V
+
+#PBS -A mdatascienceteam_flux
+#PBS -l qos=academic
+#PBS -q flux
+
+
+
+#  Show list of CPUs you ran on, if you're running under PBS
+if [ -n "$PBS_NODEFILE" ]; then cat $PBS_NODEFILE; fi
+
+#  Change to the directory you submitted from
+if [ -n "$PBS_O_WORKDIR" ]; then cd $PBS_O_WORKDIR; fi
+
+
+module load epd
+
+python ridge_all_cv.py

@@ -31,41 +31,41 @@ Xtest = count_vect.transform(rats_te.comments.fillna(''))
 
 Ytrain = np.ravel(rats_tr.quality)
 
-# # Select alpha with a validation set
-# Xtr, Xval, Ytr, Yval = cross_validation.train_test_split(
-#     Xtrain,
-#     Ytrain,
-#     test_size = 0.3,
-#     random_state = 0)
-#
-# # Define window to search for alpha
-# alphas = np.power(10.0, np.arange(-4, 2))
-#
-# # Store rmses here for plotting
-# rmseTr = np.zeros((len(alphas),))
-# rmseVal = np.zeros((len(alphas),))
-#
-# # Search for lowest validation accuracy
-# for i in range(len(alphas)):
-#     print "alpha =", alphas[i]
-#     m = linear_model.Lasso(alpha = alphas[i])
-#     m.fit(Xtr, Ytr)
-#     YhatTr = m.predict(Xtr)
-#     YhatVal = m.predict(Xval)
-#     rmseTr[i] = np.sqrt(mean_squared_error(YhatTr, Ytr))
-#     rmseVal[i] = np.sqrt(mean_squared_error(YhatVal, Yval))
-#     print alphas[i], rmseTr[i], rmseVal[i]
-#
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
-# plt.semilogx(alphas, rmseTr, hold=True)
-# plt.semilogx(alphas, rmseVal)
-# plt.legend(['Training RMSE', 'Validation RMSE'])
-# plt.ylabel('RMSE')
-# plt.xlabel('alpha')
-# plt.draw()
-# plt.savefig('lasso_cv.png')
+# Select alpha with a validation set
+Xtr, Xval, Ytr, Yval = cross_validation.train_test_split(
+    Xtrain,
+    Ytrain,
+    test_size = 0.3,
+    random_state = 0)
+
+# Define window to search for alpha
+alphas = np.power(10.0, np.arange(-4, 2))
+
+# Store rmses here for plotting
+rmseTr = np.zeros((len(alphas),))
+rmseVal = np.zeros((len(alphas),))
+
+# Search for lowest validation accuracy
+for i in range(len(alphas)):
+    print "alpha =", alphas[i]
+    m = linear_model.Lasso(alpha = alphas[i])
+    m.fit(Xtr, Ytr)
+    YhatTr = m.predict(Xtr)
+    YhatVal = m.predict(Xval)
+    rmseTr[i] = np.sqrt(mean_squared_error(YhatTr, Ytr))
+    rmseVal[i] = np.sqrt(mean_squared_error(YhatVal, Yval))
+    print alphas[i], rmseTr[i], rmseVal[i]
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.semilogx(alphas, rmseTr, hold=True)
+plt.semilogx(alphas, rmseVal)
+plt.legend(['Training RMSE', 'Validation RMSE'])
+plt.ylabel('RMSE')
+plt.xlabel('alpha')
+plt.draw()
+plt.savefig('lasso_cv.png')
 
 # Best performance at alpha = 0.0001
 # Train new model using all of the training data
