@@ -2,9 +2,6 @@
 # MDST Ratings Analysis Challenge
 # Model selection with Cross Validation
 #
-# Jonathan Stroud
-#
-#
 # Prerequisites:
 #
 # numpy
@@ -17,9 +14,10 @@ import pandas as pd
 import numpy as np
 from scipy.sparse import csr_matrix, hstack
 
-from sklearn import linear_model, cross_validation
-from sklearn.preprocessing import Imputer, scale
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, CountVectorizer
+from sklearn import cross_validation
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.preprocessing import Imputer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import mean_squared_error
 
 np.random.seed(0)
@@ -67,46 +65,45 @@ Xtr, Xval, Ytr, Yval = cross_validation.train_test_split(
     random_state = 0)
 
 # Define window to search for alpha
-# alphas = np.power(10.0, np.arange(3, 7))
-alphas = [100]
+Cs = np.arange(10,15)  # Here C is max_depth
+# Cs = [0.1]
 
 # Store MSEs here for plotting
-mseTr = np.zeros((len(alphas),))
-mseVal = np.zeros((len(alphas),))
+mseTr = np.zeros((len(Cs),))
+mseVal = np.zeros((len(Cs),))
 
 # Search for lowest validation accuracy
 print 'cross-validation'
-for i in range(len(alphas)):
-    print "alpha =", alphas[i]
-    m = linear_model.Ridge(alpha = alphas[i])
+for i in range(len(Cs)):
+    print "C =", Cs[i]
+    m = DecisionTreeRegressor(max_depth=Cs[i])
     m.fit(Xtr, Ytr)
     YhatTr = m.predict(Xtr)
     YhatVal = m.predict(Xval)
     mseTr[i] = np.sqrt(mean_squared_error(YhatTr, Ytr))
     mseVal[i] = np.sqrt(mean_squared_error(YhatVal, Yval))
-    print alphas[i], mseTr[i], mseVal[i]
+    print Cs[i], mseTr[i], mseVal[i]
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-plt.semilogx(alphas, mseTr, hold=True)
-plt.semilogx(alphas, mseVal)
+plt.plot(Cs, mseTr, hold=True)
+plt.plot(Cs, mseVal)
 plt.legend(['Training RMSE', 'Validation RMSE'])
 plt.ylabel('RMSE')
 plt.xlabel('alpha')
 plt.draw()
-plt.savefig('ridge_all_cv.png')
+plt.savefig('tree_all_cv.png')
 
-# Best performance at alpha = 100
 # Train new model using all of the training data
 print 'Fit all training data'
-m = linear_model.Ridge(alpha = 100)
+m = DecisionTreeRegressor(max_depth=13)
 m.fit(Xtrain, Ytrain)
 Yhat = m.predict(Xtest)
 
 # Save results in kaggle format
 submit = pd.DataFrame(data={'id': TEST_ID, 'quality': Yhat})
-submit.to_csv('ridge_all_cv_submit.csv', index = False)
+submit.to_csv('tree_all_cv_submit.csv', index = False)
 
 
 # Peak the ridge regression model

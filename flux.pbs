@@ -22,4 +22,4 @@ if [ -n "$PBS_O_WORKDIR" ]; then cd $PBS_O_WORKDIR; fi
 
 module load epd
 
-python ridge_all_cv.py
+python svr_all_cv.py
