@@ -9,6 +9,8 @@
 # sklearn
 #
 import pdb
+import logging
+from time import localtime, strftime
 
 import pandas as pd
 import numpy as np
@@ -22,6 +24,10 @@ from sklearn.metrics import mean_squared_error
 import xgboost as xgb
 
 np.random.seed(0)
+
+logging.basicConfig(filename='xgboost ' + strftime("%Y-%m-%d %H:%M:%S", localtime()) + '.log',
+                    level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
 # Load in the data - pandas DataFrame objects
 print 'Load data'
@@ -59,13 +65,15 @@ Xtest = xgb.DMatrix(Xtest)
 
 # Train new model using all of the training data
 print 'Fit all training data'
-param = {'max_depth': 8,
-        'eta': 0.3,
+param = {'max_depth': 6,
+        'eta': 0.2,
         'silent': 0,
         'objective': 'reg:linear',
         'eval_metric': 'rmse' }
-num_round = 500
+num_round = 750
+logging.info("C = %d", 6)
 m = xgb.train(param, Xtrain, num_round)
+logging.info(m.get_dump())
 
 Yhat = m.predict(Xtest)
 

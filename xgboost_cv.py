@@ -9,6 +9,8 @@
 # sklearn
 #
 import pdb
+import logging
+from time import localtime, strftime
 
 import pandas as pd
 import numpy as np
@@ -22,6 +24,10 @@ from sklearn.metrics import mean_squared_error
 import xgboost as xgb
 
 np.random.seed(0)
+
+logging.basicConfig(filename='xgboost ' + strftime("%Y-%m-%d %H:%M:%S", localtime()) + '.log',
+                    level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
 # Load in the data - pandas DataFrame objects
 print 'Load data'
@@ -58,8 +64,8 @@ Xtrain = xgb.DMatrix(Xtrain, label=Ytrain)
 Xtest = xgb.DMatrix(Xtest)
 
 # Define window to search for alpha
-# Cs = np.arange(10,15)  # Here C is max_depth
-Cs = [8]
+Cs = np.arange(6,13)  # Here C is max_depth
+# Cs = [6]
 
 # Store MSEs here for plotting
 mseTr = np.zeros((len(Cs),))
@@ -69,13 +75,15 @@ mseVal = np.zeros((len(Cs),))
 print 'cross-validation'
 for i in range(len(Cs)):
     print "C =", Cs[i]
+    logging.info("C = %d", Cs[i])
     param = {'max_depth': Cs[i],
             'eta': 0.3,
             'silent': 1,
             'objective': 'reg:linear',
             'eval_metric': 'rmse' }
-    num_round = 1000
-    xgb.cv(param, Xtrain, num_round, nfold=3, metrics={'rmse'}, show_progress=True)
+    num_round = 500
+    m = xgb.cv(param, Xtrain, num_round, nfold=3, metrics={'rmse'}, show_progress=True)
+    logging.info(m)
     # m.fit(Xtr, Ytr)
     # YhatTr = m.predict(Xtr)
     # YhatVal = m.predict(Xval)
@@ -99,9 +107,8 @@ for i in range(len(Cs)):
 
 # Lasso didn't work
 # Scaling the data to unit variance didn't help
+# XGBoost is good
 
 # Other things to try:
 # Random forests
 #     http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
-# Boosting
-#     http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
