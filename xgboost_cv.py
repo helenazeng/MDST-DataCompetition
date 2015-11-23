@@ -36,7 +36,7 @@ rats_te = pd.read_csv('data/newtest.csv')
 
 # Construct bigram representation
 print 'Construct bigram representation'
-count_vect = CountVectorizer(min_df=20,ngram_range=(1,2))
+count_vect = CountVectorizer(min_df=10,ngram_range=(1,2))
 
 # "Fit" the transformation on the training set and apply to test
 Xtrain = count_vect.fit_transform(rats_tr.comments.fillna(''))
@@ -64,7 +64,7 @@ Xtrain = xgb.DMatrix(Xtrain, label=Ytrain)
 Xtest = xgb.DMatrix(Xtest)
 
 # Define window to search for alpha
-Cs = np.arange(6,13)  # Here C is max_depth
+Cs = np.arange(6,7)  # Here C is max_depth
 # Cs = [6]
 
 # Store MSEs here for plotting
@@ -77,11 +77,11 @@ for i in range(len(Cs)):
     print "C =", Cs[i]
     logging.info("C = %d", Cs[i])
     param = {'max_depth': Cs[i],
-            'eta': 0.3,
+            'eta': 0.2,
             'silent': 1,
             'objective': 'reg:linear',
             'eval_metric': 'rmse' }
-    num_round = 500
+    num_round = 750
     m = xgb.cv(param, Xtrain, num_round, nfold=3, metrics={'rmse'}, show_progress=True)
     logging.info(m)
     # m.fit(Xtr, Ytr)

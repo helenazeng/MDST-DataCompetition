@@ -36,7 +36,7 @@ rats_te = pd.read_csv('data/newtest.csv')
 
 # Construct bigram representation
 print 'Construct bigram representation'
-count_vect = CountVectorizer(min_df=20,ngram_range=(1,2))
+count_vect = CountVectorizer(min_df=10,ngram_range=(1,2))
 
 # "Fit" the transformation on the training set and apply to test
 Xtrain = count_vect.fit_transform(rats_tr.comments.fillna(''))
@@ -73,7 +73,6 @@ param = {'max_depth': 6,
 num_round = 750
 logging.info("C = %d", 6)
 m = xgb.train(param, Xtrain, num_round)
-logging.info(m.get_dump())
 
 Yhat = m.predict(Xtest)
 
