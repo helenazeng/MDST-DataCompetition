@@ -1,13 +1,6 @@
-#
 # MDST Ratings Analysis Challenge
 # Model selection with Cross Validation
-#
-# Prerequisites:
-#
-# numpy
-# pandas
-# sklearn
-#
+
 import pdb
 import logging
 from time import localtime, strftime
@@ -20,7 +13,6 @@ from sklearn import cross_validation
 from sklearn.preprocessing import Imputer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import mean_squared_error
-
 import xgboost as xgb
 
 np.random.seed(0)
@@ -63,46 +55,40 @@ Xtest = imp.fit_transform(Xtest)
 Xtrain = xgb.DMatrix(Xtrain, label=Ytrain)
 Xtest = xgb.DMatrix(Xtest)
 
-# Define window to search for alpha
-Cs = np.arange(6,7)  # Here C is max_depth
+# Define parameters to search
+max_depths = np.arange(6, 9)
+etas = np.arange(0.2, 0, -0.05)
+gammas = np.arange(0, 3)
 # Cs = [6]
 
-# Store MSEs here for plotting
-mseTr = np.zeros((len(Cs),))
-mseVal = np.zeros((len(Cs),))
+# # Store MSEs here for plotting
+# mseTr = np.zeros((len(Cs),))
+# mseVal = np.zeros((len(Cs),))
 
 # Search for lowest validation accuracy
 print 'cross-validation'
-for i in range(len(Cs)):
-    print "C =", Cs[i]
-    logging.info("C = %d", Cs[i])
-    param = {'max_depth': Cs[i],
-            'eta': 0.2,
-            'silent': 1,
-            'objective': 'reg:linear',
-            'eval_metric': 'rmse' }
-    num_round = 750
-    m = xgb.cv(param, Xtrain, num_round, nfold=3, metrics={'rmse'}, show_progress=True)
-    logging.info(m)
-    # m.fit(Xtr, Ytr)
-    # YhatTr = m.predict(Xtr)
-    # YhatVal = m.predict(Xval)
-    # mseTr[i] = np.sqrt(mean_squared_error(YhatTr, Ytr))
-    # mseVal[i] = np.sqrt(mean_squared_error(YhatVal, Yval))
-    # print Cs[i], mseTr[i], mseVal[i]
-
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
-# plt.plot(Cs, mseTr, hold=True)
-# plt.plot(Cs, mseVal)
-# plt.legend(['Training RMSE', 'Validation RMSE'])
-# plt.ylabel('RMSE')
-# plt.xlabel('max_depth')
-# plt.draw()
-# plt.savefig('xgboost_cv.png')
-
-
+for max_depth in max_depths:
+    for eta in etas:
+        for gamma in gammas:
+            print "max_depth =", max_depth, \
+                "eta = ", eta, \
+                "gamma = ", gamma, \
+            logging.info('max_depth = {}, eta = {}, gamma = {}'. \
+                        format(max_depth, eta, gamma))
+            param = {'max_depth': max_depth,
+                    'eta': eta,
+                    'gamma': gamma,
+                    'silent': 1,
+                    'objective': 'reg:linear',
+                    'eval_metric': 'rmse' }
+            num_round = int(120 / eta)
+            m = xgb.cv(param,
+                    Xtrain,
+                    num_round,
+                    nfold=3,
+                    metrics={'rmse'},
+                    show_progress=True)
+            logging.info(m)
 
 
 # Lasso didn't work

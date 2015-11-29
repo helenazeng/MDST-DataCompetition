@@ -36,7 +36,7 @@ rats_te = pd.read_csv('data/newtest.csv')
 
 # Construct bigram representation
 print 'Construct bigram representation'
-count_vect = CountVectorizer(min_df=10,ngram_range=(1,2))
+count_vect = CountVectorizer(min_df=20,ngram_range=(1,2))
 
 # "Fit" the transformation on the training set and apply to test
 Xtrain = count_vect.fit_transform(rats_tr.comments.fillna(''))
@@ -65,13 +65,18 @@ Xtest = xgb.DMatrix(Xtest)
 
 # Train new model using all of the training data
 print 'Fit all training data'
-param = {'max_depth': 6,
-        'eta': 0.2,
+max_depth = 8
+eta = 0.05
+gamma = 2
+param = {'max_depth': max_depth,
+        'eta': eta,
+        'gamma': gamma,
         'silent': 0,
         'objective': 'reg:linear',
         'eval_metric': 'rmse' }
-num_round = 750
-logging.info("C = %d", 6)
+num_round = int(150 / eta)
+logging.info('max_depth = {}, eta = {}, gamma = {}, num_round = {}'. \
+            format(max_depth, eta, gamma, num_round))
 m = xgb.train(param, Xtrain, num_round)
 
 Yhat = m.predict(Xtest)
@@ -81,12 +86,9 @@ submit = pd.DataFrame(data={'id': TEST_ID, 'quality': Yhat})
 submit.to_csv('xgboost_submit.csv', index = False)
 
 
-
 # Lasso didn't work
 # Scaling the data to unit variance didn't help
 
 # Other things to try:
 # Random forests
 #     http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
-# Boosting
-#     http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
